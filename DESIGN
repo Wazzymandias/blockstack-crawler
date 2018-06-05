@@ -1,0 +1,26 @@
+// ./blockstack-profile-crawler app new-users [optional date?] [optional app name, otherwise default to showing for all apps?]
+// for each user that exists in the blockstack id namespace (i.e. for each user profile)
+//   fetch the profile and store it in KV store map[name]profile
+//   if userIsNew() {
+//       addToNewUserQueueOrChannel()
+//   }
+// at the end of this for loop, signal to a done channel or something
+// <-done
+//
+//
+
+
+// func appNewUsers() {
+//   go getAllUsers()
+//   done := make(bool ch, 1)
+//   go processNewUsers(done)
+//   wait for response
+//   <-done
+//   close(done)
+// }
+
+
+
+// ENVIRONMENT/CONFIGURATION VARIABLES
+// BLOCKSTACK_API_ENDPOINT #default to core.blockstack.org
+//
