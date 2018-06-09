@@ -8,8 +8,6 @@ import (
 	"github.com/Wazzymandias/blockstack-profile-crawler/storage"
 	"io/ioutil"
 	"net/http"
-	"path/filepath"
-	"reflect"
 	"sync"
 	"time"
 )
@@ -18,14 +16,11 @@ const (
 	getAllNamespaces = "/v1/namespaces"
 )
 
-// TODO db pool
-
-// names page worker will asynchronously write pages to disk and insert to database
 type RequestHandler struct {
 	client http.Client
 
-	db      db.DB
-	storage storage.Storage
+	db      db.BlockstackDB
+	storage storage.BlockstackStorage
 }
 
 // TODO switch statement that maps request type to url endpoint to hit
@@ -64,10 +59,14 @@ func GetAllNamespaces() ([]string, error) {
 
 func (rh *RequestHandler) RetrieveNewUsers(since time.Time) (map[string]map[string]bool, error) {
 	var old, current map[string]map[string]bool
-	var exists bool
 	var err error
 
-	if old, exists = rh.GetNamesAt(since); !exists {
+	if old, err = rh.GetNamesAt(since); err != nil {
+		// TODO log error
+		return nil, fmt.Errorf("error fetching names for time %d: %+v", since.Unix(), err)
+	}
+
+	if old == nil {
 		// TODO log error
 		return nil, fmt.Errorf("user data not found for time %d: cannot compare", since.Unix())
 	}
@@ -82,62 +81,38 @@ func (rh *RequestHandler) RetrieveNewUsers(since time.Time) (map[string]map[stri
 	return selectNewNames(old, current), nil
 }
 
-func (rh *RequestHandler) GetNames() (map[string]map[string]bool, bool) {
+func (rh *RequestHandler) GetNames() (map[string]map[string]bool, error) {
 	return rh.GetNamesAt(time.Now())
 }
 
-func (rh *RequestHandler) GetNamesAt(date time.Time) (map[string]map[string]bool, bool) {
-	return nil, false
-}
+func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
+	result, err = rh.db.GetNamesAt(date)
 
-func (rh *RequestHandler) DBGetNames() (map[string]map[string]bool, bool) {
-	return nil, false
-	//return rh.DBGetNamesAt(time.Now())
-}
-
-func (rh *RequestHandler) DBGetNamesAt(date time.Time) (result map[string]map[string]bool, ok bool) {
-	// time is rounded to start of day
-	rounded := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	key := filepath.Join(config.DataDir, config.UsersDir, string(rounded.Unix()))
-
-	value, ok := rh.db.Get(key)
-
-	if !ok {
+	if err != nil {
 		return
 	}
 
-	if result, ok = value.(map[string]map[string]bool); !ok {
-		panic(fmt.Errorf("invalid type found for key %s, expected: %s, got: %+v",
-			key, reflect.TypeOf(result), value))
+	if result != nil {
+		return
 	}
 
-	return
+	return rh.storage.ReadNamesAt(date)
 }
 
-func (rh *RequestHandler) StorageGetNames() (map[string]map[string]bool, bool) {
-	return rh.StorageGetNamesAt(time.Now())
-}
-
-func (rh *RequestHandler) StorageGetNamesAt(date time.Time) (map[string]map[string]bool, bool) {
-	return nil, false
-}
-
-// let's fetch from remote for now, deal with storage later since
+//dir := filepath.Join(config.DataDir, config.NamesDir, string(rounded.Unix()), config.StorageFileType)
 func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, err error) {
-	var ok bool
+	//result, err = rh.GetNames()
+	//
+	//if err != nil {
+	//	return
+	//}
+	//
+	//if result != nil {
+	//	return
+	//}
 
-	if result, ok = rh.DBGetNames(); ok {
-		return
-	}
-
-	if result, ok = rh.StorageGetNames(); ok {
-		err = rh.addNamesToDB(result)
-		return
-	}
-
-	//dir := filepath.Join(config.DataDir, config.UsersDir, string(rounded.Unix()), config.StorageFileType)
-
-	return rh.FetchAndAddNames()
+	//return rh.FetchAndAddNames()
+	return rh.FetchNames()
 }
 
 func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, err error) {
@@ -154,20 +129,12 @@ func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, 
 	return
 }
 
-func (rh *RequestHandler) AddNames(names map[string]map[string]bool) error {
-	if err := rh.addNamesToStorage(names); err != nil {
+func (rh *RequestHandler) AddNames(names map[string]map[string]bool) (err error) {
+	if err = rh.storage.WriteNames(names); err != nil {
 		return err
 	}
 
-	return rh.addNamesToDB(names)
-}
-
-func (rh *RequestHandler) addNamesToDB(names map[string]map[string]bool) error {
-	return nil
-}
-
-func (rh *RequestHandler) addNamesToStorage(names map[string]map[string]bool) error {
-	return nil
+	return rh.db.PutNames(names)
 }
 
 func (rh *RequestHandler) fetchNames(namespaces []string, count int) (<-chan names, <-chan error) {
@@ -385,5 +352,5 @@ func (rh *RequestHandler) processPageRequest(namespace string, pageURL string, p
 		return
 	}
 
-	pages <- NamesPage{Namespace: namespace, PageNum: page, UserIDs: pageResults, Count: numResults}
+	pages <- NamesPage{PageNum: page, UserIDs: pageResults, Count: numResults}
 }

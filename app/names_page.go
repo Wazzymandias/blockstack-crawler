@@ -6,7 +6,6 @@ package app
 type NamesPage struct {
 	PageNum   uint64
 	UserIDs   []string `json:",flow"`
-	Namespace string
 	Count     int
 }
 

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/Wazzymandias/blockstack-profile-crawler/db"
 	"time"
 )
 
@@ -12,10 +11,11 @@ const (
 	defaultBatchSize    = 50
 	ChannelCap          = 250
 
-	UsersDir        = "users"
+	NamesDir = "names"
+
 	StorageFileType = "json"
 
-	defaultDBType = db.Badger
+	defaultDBType = Badger
 )
 
 var (
