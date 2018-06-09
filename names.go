@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"github.com/Wazzymandias/blockstack-profile-crawler.go/config"
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"io/ioutil"
+	"net/http"
 )
 
 // GetAll returns list of all names
@@ -22,7 +22,7 @@ func GetAll() error {
 
 		numNames := len(names)
 
-		if numNames  == 0 {
+		if numNames == 0 {
 			break
 		}
 
@@ -36,14 +36,16 @@ func getNamesFromPage(page int) ([]string, error) {
 	var pageNames []string
 
 	url := fmt.Sprintf("%s/%s", config.ApiURL, "v1/names")
-	client := &http.Client{Timeout:config.Timeout}
+
+	client := &http.Client{Timeout: config.Timeout}
 
 	req, err := http.NewRequest("GET", url, nil)
 
-	req.Form.Set("page", string(page))
 	if err != nil {
 		return nil, err
 	}
+
+	req.Form.Set("page", string(page))
 
 	resp, err := client.Do(req)
 
