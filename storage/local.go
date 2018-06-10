@@ -57,7 +57,7 @@ func (l *Local) WriteNames(names map[string]map[string]bool) error {
 // TODO attempt to create all directories if they don't exist
 func (l *Local) WriteNamesAt(names map[string]map[string]bool, t time.Time) error {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 
 	// dataDir + names + time + names.json
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
@@ -91,7 +91,7 @@ func (l *Local) ReadNames() (map[string]map[string]bool, error) {
 // to Unix Epoch time decimal string
 func (l *Local) ReadNamesAt(t time.Time) (map[string]map[string]bool, error) {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
 
@@ -114,7 +114,7 @@ func (l *Local) NamesExist() bool {
 
 func (l *Local) NamesExistAt(t time.Time) bool {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
 

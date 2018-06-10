@@ -88,12 +88,11 @@ func (rh *RequestHandler) GetNames() (map[string]map[string]bool, error) {
 func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
 	result, err = rh.db.GetNamesAt(date)
 
-	// err != nil && err != DoesNotExist
 	if err != nil {
 		return
 	}
 
-	if result != nil {
+	if len(result) > 0 {
 		return
 	}
 
@@ -111,7 +110,7 @@ func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, er
 		return
 	}
 
-	if result != nil {
+	if len(result) > 0 {
 		return
 	}
 
@@ -119,21 +118,16 @@ func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, er
 }
 
 func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, err error) {
-	fmt.Println("fetching names")
-
 	names, err = rh.FetchNames()
 
 	if err != nil {
 		return
 	}
 
-	fmt.Println("adding names to db and storage")
-
 	if err = rh.AddNames(names); err != nil {
 		return
 	}
 
-	fmt.Println("done with fetch and add")
 	return
 }
 
@@ -145,23 +139,6 @@ func (rh *RequestHandler) AddNames(names map[string]map[string]bool) (err error)
 
 	return rh.storage.WriteNames(names)
 }
-
-//func (rh *RequestHandler) seed(names map[string]map[string]bool, t time.Time) error {
-//	seeding := make(map[string]map[string]bool)
-//
-//	for k, v := range names {
-//		seeding[k] = make(map[string]bool)
-//
-//		for n := range v {
-//			seeding[k][n] = true
-//			break
-//		}
-//	}
-//
-//	fmt.Println("seed data: ", seeding)
-//	fmt.Println(t.AddDate(0, 0, -1))
-//	return rh.db.PutNamesAt(names, t.AddDate(0, 0, -1))
-//}
 
 func (rh *RequestHandler) fetchNames(namespaces []string, count int) (<-chan names, <-chan error) {
 	var errors []error

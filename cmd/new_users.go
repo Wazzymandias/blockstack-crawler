@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/Wazzymandias/blockstack-profile-crawler/app"
 	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"github.com/spf13/cobra"
 	"time"
+	"fmt"
 )
 
 var usersCmd = &cobra.Command{
@@ -53,5 +53,12 @@ func init() {
 }
 
 func printUsers(u map[string]map[string]bool) {
+	usrlen := len(u)
+
+	if usrlen == 0 {
+		fmt.Println("users are identical")
+		return
+	}
+
 	fmt.Println(u)
 }

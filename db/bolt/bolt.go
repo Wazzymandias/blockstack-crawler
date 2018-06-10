@@ -13,7 +13,7 @@ import (
 const namesBucket = "names"
 
 type DB struct {
-	db *bolt.DB
+	DB *bolt.DB
 }
 
 func New(path string) (*DB, error) {
@@ -23,11 +23,11 @@ func New(path string) (*DB, error) {
 		return &DB{}, err
 	}
 
-	return &DB{db: db}, err
+	return &DB{DB: db}, err
 }
 
 func (db *DB) Get(bucket, key []byte) (result []byte, err error) {
-	err = db.db.View(func(tx *bolt.Tx) error {
+	err = db.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
 
 		if b != nil {
@@ -41,7 +41,7 @@ func (db *DB) Get(bucket, key []byte) (result []byte, err error) {
 }
 
 func (db *DB) Put(bucket, key, value []byte) error {
-	return db.db.Update(func(tx *bolt.Tx) error {
+	return db.DB.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists(bucket)
 
 		if err != nil {
@@ -53,7 +53,7 @@ func (db *DB) Put(bucket, key, value []byte) error {
 }
 
 func (db *DB) Shutdown() error {
-	return db.db.Close()
+	return db.DB.Close()
 }
 
 func (db *DB) GetNames() (map[string]map[string]bool, error) {
@@ -62,7 +62,7 @@ func (db *DB) GetNames() (map[string]map[string]bool, error) {
 
 func (db *DB) GetNamesAt(t time.Time) (result map[string]map[string]bool, err error) {
 	// time is rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 
 	key := strconv.FormatInt(rounded.Unix(), 10)
 
@@ -104,7 +104,7 @@ func (db *DB) PutNames(names map[string]map[string]bool) error {
 
 func (db *DB) PutNamesAt(names map[string]map[string]bool, t time.Time) error {
 	// time is rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 
 	key := strconv.FormatInt(rounded.Unix(), 10)
 
