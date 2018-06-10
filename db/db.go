@@ -1,10 +1,11 @@
 package db
 
 import (
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"github.com/Wazzymandias/blockstack-profile-crawler/db/bolt"
 )
 

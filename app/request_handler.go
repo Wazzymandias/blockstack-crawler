@@ -88,6 +88,7 @@ func (rh *RequestHandler) GetNames() (map[string]map[string]bool, error) {
 func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
 	result, err = rh.db.GetNamesAt(date)
 
+	// err != nil && err != DoesNotExist
 	if err != nil {
 		return
 	}
@@ -118,16 +119,21 @@ func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, er
 }
 
 func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, err error) {
+	fmt.Println("fetching names")
+
 	names, err = rh.FetchNames()
 
 	if err != nil {
 		return
 	}
 
+	fmt.Println("adding names to db and storage")
+
 	if err = rh.AddNames(names); err != nil {
 		return
 	}
 
+	fmt.Println("done with fetch and add")
 	return
 }
 

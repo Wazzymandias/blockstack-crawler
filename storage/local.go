@@ -1,14 +1,15 @@
 package storage
 
 import (
-	"time"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
-	"encoding/json"
 	"strconv"
+	"time"
+
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 )
 
 type Local struct {
@@ -17,7 +18,7 @@ type Local struct {
 
 // TODO validate directory exists and has read/write permissions
 func NewLocal(dataDir string) (*Local, error) {
-	return &Local{perms:0644}, nil
+	return &Local{perms: 0644}, nil
 }
 
 func (l *Local) Exists(path string) bool {
@@ -56,7 +57,7 @@ func (l *Local) WriteNames(names map[string]map[string]bool) error {
 // TODO attempt to create all directories if they don't exist
 func (l *Local) WriteNamesAt(names map[string]map[string]bool, t time.Time) error {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(),0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 
 	// dataDir + names + time + names.json
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
@@ -90,7 +91,7 @@ func (l *Local) ReadNames() (map[string]map[string]bool, error) {
 // to Unix Epoch time decimal string
 func (l *Local) ReadNamesAt(t time.Time) (map[string]map[string]bool, error) {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(),0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
 
@@ -113,7 +114,7 @@ func (l *Local) NamesExist() bool {
 
 func (l *Local) NamesExistAt(t time.Time) bool {
 	// rounded to start of day
-	rounded := time.Date(t.Year(), t.Month(), t.Day(),0, 0, 0, 0, t.Location())
+	rounded := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 
 	path := filepath.Join(config.DataDir, config.NamesDir, strconv.FormatInt(rounded.Unix(), 10), config.NamesJSON)
 

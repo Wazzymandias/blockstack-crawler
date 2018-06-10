@@ -19,5 +19,5 @@ func NewRequestHandler() (*RequestHandler, error) {
 		return nil, err
 	}
 
-	return &RequestHandler{storage:store, db:rhDB}, nil
+	return &RequestHandler{storage: store, db: rhDB}, nil
 }

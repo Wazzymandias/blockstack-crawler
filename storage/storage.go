@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"fmt"
+
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 )
 
 func New() (BlockstackStorage, error) {

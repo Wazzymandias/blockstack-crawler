@@ -19,4 +19,3 @@ type BlockstackStorage interface {
 	NamesExist() bool
 	NamesExistAt(t time.Time) bool
 }
-

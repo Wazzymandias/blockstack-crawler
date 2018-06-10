@@ -1,9 +1,9 @@
 package config
 
 import (
-	"time"
-	"os"
 	"fmt"
+	"os"
+	"time"
 )
 
 const (
@@ -12,14 +12,14 @@ const (
 	DefaultApiURL       = "core.blockstack.org"
 	DefaultApiURLScheme = "https"
 
-	DefaultTimeout      = 120 * time.Second
-	DefaultBatchSize    = 50
+	DefaultTimeout   = 120 * time.Second
+	DefaultBatchSize = 50
 
-	DefaultDBType = Bolt
-	DefaultDBDir = "db"
+	DefaultDBType      = Bolt
+	DefaultDBDir       = "db"
 	DefaultStorageType = Local
 
-	NamesDir = "names"
+	NamesDir  = "names"
 	NamesJSON = "names.json"
 )
 
@@ -31,10 +31,10 @@ var (
 	ApiURLScheme        = DefaultApiURLScheme
 	BatchSize    uint64 = DefaultBatchSize
 
-	DataDir = DefaultDataDir
+	DataDir      = DefaultDataDir
 	DatabaseType = DefaultDBType
-	StorageType = DefaultStorageType
-	DBDir = DefaultDBDir
+	StorageType  = DefaultStorageType
+	DBDir        = DefaultDBDir
 
 	NewUsersSince string
 )
