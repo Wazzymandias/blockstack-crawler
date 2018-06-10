@@ -1,29 +1,38 @@
 package config
 
 import (
+	"fmt"
+	"os"
 	"time"
 )
 
 const (
-	defaultApiURL       = "core.blockstack.org"
-	defaultTimeout      = 120 * time.Second
-	defaultApiURLScheme = "https"
-	defaultBatchSize    = 50
-	ChannelCap          = 250
+	ProgramName = "bpc"
 
-	NamesDir = "names"
+	DefaultApiURL       = "core.blockstack.org"
+	DefaultApiURLScheme = "https"
 
-	StorageFileType = "json"
+	DefaultTimeout   = 120 * time.Second
+	DefaultBatchSize = 50
 
-	defaultDBType = Badger
+	DefaultDBType      = Badger
+	DefaultDBDir       = "db"
+	DefaultStorageType = Local
+
+	NamesDir  = "names"
+	NamesJSON = "names.json"
 )
 
 var (
-	ApiURL              = defaultApiURL
-	Timeout             = defaultTimeout
-	ApiURLScheme        = defaultApiURLScheme
-	BatchSize    uint64 = defaultBatchSize
+	DefaultDataDir = os.ExpandEnv(fmt.Sprintf("$HOME/.%s/data", ProgramName))
 
-	DataDir string
-	DBType  = defaultDBType
+	ApiURL              = DefaultApiURL
+	Timeout             = DefaultTimeout
+	ApiURLScheme        = DefaultApiURLScheme
+	BatchSize    uint64 = DefaultBatchSize
+
+	DataDir      = DefaultDataDir
+	DatabaseType = DefaultDBType
+	StorageType  = DefaultStorageType
+	DBDir        = DefaultDBDir
 )

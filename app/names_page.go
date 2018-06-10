@@ -4,9 +4,9 @@ package app
 // at a given page the page number and namespace are used
 // to determine the path where the userIDs json file is stored
 type NamesPage struct {
-	PageNum   uint64
-	UserIDs   []string `json:",flow"`
-	Count     int
+	PageNum uint64
+	UserIDs []string `json:",flow"`
+	Count   int
 }
 
 // TODO fill out

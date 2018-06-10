@@ -12,16 +12,18 @@ var newUsersCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO validate required flags and make sure values are correct
 
-		fmt.Println("creating request handler")
+		rh, err := app.NewRequestHandler()
 
-		rh := app.NewRequestHandler()
+		if err != nil {
+			return err
+		}
 
 		//t, err := time.Parse(time.RFC3339, "")
 		//
 		//if err != nil {
 		//	return err
 		//}
-		//newUsers, err := rh.RetrieveNewUsers(t)
+		//newUsers, err := rh.RetrieveNewNames(t)
 
 		newUsers, err := rh.RetrieveNames()
 
@@ -30,7 +32,8 @@ var newUsersCmd = &cobra.Command{
 		}
 
 		printUsers(newUsers)
-		return nil
+
+		return rh.Shutdown()
 	},
 }
 

@@ -5,6 +5,7 @@ import "time"
 type DB interface {
 	Put(key, value []byte) error
 	Get(key []byte) ([]byte, error)
+	Shutdown() error
 }
 
 type BlockstackDB interface {

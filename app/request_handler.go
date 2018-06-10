@@ -57,7 +57,7 @@ func GetAllNamespaces() ([]string, error) {
 	return result, nil
 }
 
-func (rh *RequestHandler) RetrieveNewUsers(since time.Time) (map[string]map[string]bool, error) {
+func (rh *RequestHandler) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
 	var old, current map[string]map[string]bool
 	var err error
 
@@ -88,6 +88,7 @@ func (rh *RequestHandler) GetNames() (map[string]map[string]bool, error) {
 func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
 	result, err = rh.db.GetNamesAt(date)
 
+	// err != nil && err != DoesNotExist
 	if err != nil {
 		return
 	}
@@ -96,36 +97,48 @@ func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[stri
 		return
 	}
 
-	return rh.storage.ReadNamesAt(date)
+	if rh.storage.NamesExistAt(date) {
+		return rh.storage.ReadNamesAt(date)
+	}
+
+	return nil, nil
 }
 
-//dir := filepath.Join(config.DataDir, config.NamesDir, string(rounded.Unix()), config.StorageFileType)
 func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, err error) {
-	//result, err = rh.GetNames()
-	//
-	//if err != nil {
-	//	return
-	//}
-	//
-	//if result != nil {
-	//	return
-	//}
+	fmt.Println("attempting to get names first")
 
-	//return rh.FetchAndAddNames()
-	return rh.FetchNames()
+	result, err = rh.GetNames()
+
+	if err != nil {
+		return
+	}
+
+	if result != nil {
+		return
+	}
+
+	fmt.Println("names not found in db or storage, fetching from remote")
+
+	return rh.FetchAndAddNames()
+	//return rh.FetchNames()
 }
 
 func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, err error) {
+	fmt.Println("fetching names")
+
 	names, err = rh.FetchNames()
 
 	if err != nil {
 		return
 	}
 
+	fmt.Println("adding names to db and storage")
+
 	if err = rh.AddNames(names); err != nil {
 		return
 	}
 
+	fmt.Println("done with fetch and add")
 	return
 }
 
@@ -202,10 +215,6 @@ func (rh *RequestHandler) FetchNames() (map[string]map[string]bool, error) {
 	return rh.transformNames(rh.fetchNames(namespaces, nsCount))
 }
 
-func (rh *RequestHandler) FetchNamespaces() ([]string, error) {
-	return nil, nil
-}
-
 func (rh *RequestHandler) processPages(namespace string, pages <-chan NamesPage, namesCh chan<- names) {
 	var nms []string
 
@@ -216,7 +225,6 @@ func (rh *RequestHandler) processPages(namespace string, pages <-chan NamesPage,
 			break
 		}
 
-		fmt.Printf("finished processing page %d for %s", page.PageNum, namespace)
 		nms = append(nms, page.UserIDs...)
 	}
 
@@ -353,4 +361,8 @@ func (rh *RequestHandler) processPageRequest(namespace string, pageURL string, p
 	}
 
 	pages <- NamesPage{PageNum: page, UserIDs: pageResults, Count: numResults}
+}
+
+func (rh *RequestHandler) Shutdown() error {
+	return rh.db.Shutdown()
 }
