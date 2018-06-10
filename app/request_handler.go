@@ -57,18 +57,18 @@ func GetAllNamespaces() ([]string, error) {
 	return result, nil
 }
 
-func (rh *RequestHandler) RetrieveNewUsers(since time.Time) (map[string]map[string]bool, error) {
+func (rh *RequestHandler) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
 	var old, current map[string]map[string]bool
 	var err error
 
 	if old, err = rh.GetNamesAt(since); err != nil {
 		// TODO log error
-		return nil, fmt.Errorf("error fetching names for time %d: %+v", since.Unix(), err)
+		return nil, fmt.Errorf("error fetching names for time %s: %+v", since.String(), err)
 	}
 
-	if old == nil {
+	if len(old) == 0 {
 		// TODO log error
-		return nil, fmt.Errorf("user data not found for time %d: cannot compare", since.Unix())
+		return nil, fmt.Errorf("user data not found for time %s: cannot compare", since.String())
 	}
 
 	current, err = rh.RetrieveNames()
@@ -96,23 +96,25 @@ func (rh *RequestHandler) GetNamesAt(date time.Time) (result map[string]map[stri
 		return
 	}
 
-	return rh.storage.ReadNamesAt(date)
+	if rh.storage.NamesExistAt(date) {
+		return rh.storage.ReadNamesAt(date)
+	}
+
+	return nil, nil
 }
 
-//dir := filepath.Join(config.DataDir, config.NamesDir, string(rounded.Unix()), config.StorageFileType)
 func (rh *RequestHandler) RetrieveNames() (result map[string]map[string]bool, err error) {
-	//result, err = rh.GetNames()
-	//
-	//if err != nil {
-	//	return
-	//}
-	//
-	//if result != nil {
-	//	return
-	//}
+	result, err = rh.GetNames()
 
-	//return rh.FetchAndAddNames()
-	return rh.FetchNames()
+	if err != nil {
+		return
+	}
+
+	if result != nil {
+		return
+	}
+
+	return rh.FetchAndAddNames()
 }
 
 func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, err error) {
@@ -130,12 +132,30 @@ func (rh *RequestHandler) FetchAndAddNames() (names map[string]map[string]bool, 
 }
 
 func (rh *RequestHandler) AddNames(names map[string]map[string]bool) (err error) {
-	if err = rh.storage.WriteNames(names); err != nil {
-		return err
+	if err = rh.db.PutNames(names); err != nil {
+		fmt.Println("error occured adding names to db")
+		return
 	}
 
-	return rh.db.PutNames(names)
+	return rh.storage.WriteNames(names)
 }
+
+//func (rh *RequestHandler) seed(names map[string]map[string]bool, t time.Time) error {
+//	seeding := make(map[string]map[string]bool)
+//
+//	for k, v := range names {
+//		seeding[k] = make(map[string]bool)
+//
+//		for n := range v {
+//			seeding[k][n] = true
+//			break
+//		}
+//	}
+//
+//	fmt.Println("seed data: ", seeding)
+//	fmt.Println(t.AddDate(0, 0, -1))
+//	return rh.db.PutNamesAt(names, t.AddDate(0, 0, -1))
+//}
 
 func (rh *RequestHandler) fetchNames(namespaces []string, count int) (<-chan names, <-chan error) {
 	var errors []error
@@ -202,10 +222,6 @@ func (rh *RequestHandler) FetchNames() (map[string]map[string]bool, error) {
 	return rh.transformNames(rh.fetchNames(namespaces, nsCount))
 }
 
-func (rh *RequestHandler) FetchNamespaces() ([]string, error) {
-	return nil, nil
-}
-
 func (rh *RequestHandler) processPages(namespace string, pages <-chan NamesPage, namesCh chan<- names) {
 	var nms []string
 
@@ -216,8 +232,8 @@ func (rh *RequestHandler) processPages(namespace string, pages <-chan NamesPage,
 			break
 		}
 
-		fmt.Printf("finished processing page %d for %s", page.PageNum, namespace)
 		nms = append(nms, page.UserIDs...)
+		fmt.Printf("finished processing page %d for %s\n", page.PageNum, namespace)
 	}
 
 	namesCh <- names{Namespace: namespace, Names: nms}
@@ -333,7 +349,7 @@ func (rh *RequestHandler) processPageRequest(namespace string, pageURL string, p
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		errCh <- fmt.Errorf("error reading response body: [err: %v] [body: %v]", err, body)
+		errCh <- fmt.Errorf("error reading response body: [err: %v] [body: %v]", err, string(body))
 		return
 	}
 
@@ -341,7 +357,7 @@ func (rh *RequestHandler) processPageRequest(namespace string, pageURL string, p
 	err = json.Unmarshal(body, &pageResults)
 
 	if err != nil {
-		errCh <- fmt.Errorf("error unmarshalling response body: [err: %v] [body: %v]", err, body)
+		errCh <- fmt.Errorf("error unmarshalling response body: [err: %v] [body: %v]", err, string(body))
 		return
 	}
 
@@ -353,4 +369,8 @@ func (rh *RequestHandler) processPageRequest(namespace string, pageURL string, p
 	}
 
 	pages <- NamesPage{PageNum: page, UserIDs: pageResults, Count: numResults}
+}
+
+func (rh *RequestHandler) Shutdown() error {
+	return rh.db.Shutdown()
 }

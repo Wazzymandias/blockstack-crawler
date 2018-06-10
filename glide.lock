@@ -1,8 +1,10 @@
 hash: 7cb12052427cb2ff9ab8abe4a7d9d018233e92aaf366184ecec88e612efc6f8a
-updated: 2018-06-08T22:16:09.494653781-04:00
+updated: 2018-06-09T23:51:27.32329146-04:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
+- name: github.com/coreos/bbolt
+  version: af9db2027c98c61ecd8e17caa5bd265792b9b9a2
 - name: github.com/dgraph-io/badger
   version: cdf9ffb40fde980875360cf2b1f7d66946fdc769
   subpackages:

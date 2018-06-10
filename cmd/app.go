@@ -8,5 +8,5 @@ var appCmd = &cobra.Command{
 }
 
 func init() {
-	appCmd.AddCommand(newUsersCmd)
+	appCmd.AddCommand(usersCmd)
 }

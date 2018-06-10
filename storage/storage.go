@@ -1,15 +1,15 @@
 package storage
 
-import "time"
+import (
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"fmt"
+)
 
-type Storage interface {
-	Exists(key interface{}) bool
-	Find(path string) (interface{}, bool)
-}
-
-type BlockstackStorage interface {
-	WriteNames(names map[string]map[string]bool) error
-	WriteNamesAt(names map[string]map[string]bool, time time.Time) error
-	ReadNames() error
-	ReadNamesAt(time time.Time) (map[string]map[string]bool, error)
+func New() (BlockstackStorage, error) {
+	switch config.StorageType {
+	case config.Local:
+		return NewLocal(config.DataDir)
+	default:
+		return nil, fmt.Errorf("unsupported storage type [%v]", config.StorageType)
+	}
 }
