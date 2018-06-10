@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/Wazzymandias/blockstack-profile-crawler/storage"
 	"github.com/Wazzymandias/blockstack-profile-crawler/db"
+	"github.com/Wazzymandias/blockstack-profile-crawler/storage"
 )
 
 func NewRequestHandler() (*RequestHandler, error) {

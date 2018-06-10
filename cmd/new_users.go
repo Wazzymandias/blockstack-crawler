@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/Wazzymandias/blockstack-profile-crawler/app"
-	"github.com/spf13/cobra"
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
-	"time"
 	"fmt"
+	"github.com/Wazzymandias/blockstack-profile-crawler/app"
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"github.com/spf13/cobra"
+	"time"
 )
 
 var usersCmd = &cobra.Command{
@@ -55,4 +55,3 @@ func init() {
 func printUsers(u map[string]map[string]bool) {
 	fmt.Println(u)
 }
-

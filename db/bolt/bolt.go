@@ -1,13 +1,13 @@
 package bolt
 
 import (
-	"github.com/coreos/bbolt"
-	"time"
-	"strconv"
-	"compress/gzip"
 	"bytes"
-	"io/ioutil"
+	"compress/gzip"
 	"encoding/json"
+	"github.com/coreos/bbolt"
+	"io/ioutil"
+	"strconv"
+	"time"
 )
 
 const namesBucket = "names"
@@ -23,7 +23,7 @@ func New(path string) (*DB, error) {
 		return &DB{}, err
 	}
 
-	return &DB{db:db}, err
+	return &DB{db: db}, err
 }
 
 func (db *DB) Get(bucket, key []byte) (result []byte, err error) {

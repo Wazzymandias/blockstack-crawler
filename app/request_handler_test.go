@@ -1,9 +1,9 @@
 package app
 
 import (
-	"testing"
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"fmt"
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"testing"
 )
 
 func TestRequestHandler(t *testing.T) {
