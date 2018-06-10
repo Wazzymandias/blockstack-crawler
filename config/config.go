@@ -15,7 +15,7 @@ const (
 	DefaultTimeout   = 120 * time.Second
 	DefaultBatchSize = 50
 
-	DefaultDBType      = Bolt
+	DefaultDBType      = Badger
 	DefaultDBDir       = "db"
 	DefaultStorageType = Local
 

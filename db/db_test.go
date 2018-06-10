@@ -1,10 +1,10 @@
 package db
 
 import (
-	"testing"
-	"path/filepath"
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
 	"fmt"
+	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"path/filepath"
+	"testing"
 	"time"
 )
 
@@ -16,13 +16,13 @@ func TestNewBoltDB(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v, err := b.GetNamesAt(time.Now().AddDate(0,0,-2))
+	v, err := b.GetNamesAt(time.Now().AddDate(0, 0, -2))
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Println(time.Now().AddDate(0,0,-2))
+	fmt.Println(time.Now().AddDate(0, 0, -2))
 
 	if len(v) > 0 {
 		fmt.Println("found v:", len(v))
@@ -32,7 +32,7 @@ func TestNewBoltDB(t *testing.T) {
 
 	ti, err := time.Parse(layout, "2018-06-08")
 
-	fmt.Println("time:",ti)
+	fmt.Println("time:", ti)
 
 	v2, err := b.GetNamesAt(ti)
 
