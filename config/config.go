@@ -42,7 +42,7 @@ var (
 	ApiURLScheme = DefaultAPIScheme
 	ApiPort      = DefaultAPIPort
 
-	BatchSize    uint64 = DefaultBatchSize
+	BatchSize uint64 = DefaultBatchSize
 
 	DataDir      = DefaultDataDir
 	DatabaseType string
@@ -50,7 +50,7 @@ var (
 	DBDir        = DefaultDBDir
 
 	NewUsersSince string
-	OutputFormat = DefaultOutputFormat
+	OutputFormat  = DefaultOutputFormat
 
 	OutputFile string
 )

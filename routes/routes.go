@@ -1,11 +1,11 @@
 package routes
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Wazzymandias/blockstack-crawler/config"
-	"net/http"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
 )
 
 const (

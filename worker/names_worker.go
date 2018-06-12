@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"github.com/Wazzymandias/blockstack-crawler/config"
 	"github.com/Wazzymandias/blockstack-crawler/db"
+	. "github.com/Wazzymandias/blockstack-crawler/names"
+	"github.com/Wazzymandias/blockstack-crawler/routes"
 	"github.com/Wazzymandias/blockstack-crawler/storage"
 	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
-	. "github.com/Wazzymandias/blockstack-crawler/names"
-	"github.com/Wazzymandias/blockstack-crawler/routes"
 )
 
-// NamesWorker processes name related requests
+// NameWorker processes name related requests
 // By first checking database and storage before
 // making remote calls for information.
-type NamesWorker struct {
+type NameWorker struct {
 	client http.Client
 
 	db      db.BlockstackDB
@@ -27,7 +27,7 @@ type NamesWorker struct {
 // RetrieveNewNames attempts to compare the latest set of names for each namespace to the set
 // found at the provided time. If no previous data exists at the specified time,
 // an error is returned. Otherwise a set of new names is returned.
-func (rh *NamesWorker) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
+func (rh *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
 	var old, current map[string]map[string]bool
 	var err error
 
@@ -52,15 +52,15 @@ func (rh *NamesWorker) RetrieveNewNames(since time.Time) (map[string]map[string]
 }
 
 // GetNames returns the set of all names at current day
-func (rh *NamesWorker) GetNames() (map[string]map[string]bool, error) {
+func (rh *NameWorker) GetNames() (map[string]map[string]bool, error) {
 	return rh.GetNamesAt(time.Now())
 }
 
 // GetNamesAt attempts to find and return the set of names for each namespace at the given date
-func (rh *NamesWorker) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
+func (rh *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
 	result, err = rh.db.GetNamesAt(date)
 
-	if err != nil && err != config.ErrDBKeyNotFound{
+	if err != nil && err != config.ErrDBKeyNotFound {
 		return
 	}
 
@@ -77,7 +77,7 @@ func (rh *NamesWorker) GetNamesAt(date time.Time) (result map[string]map[string]
 
 // RetrieveNames attempts to return the set of names at current date.
 // If the names don't exist in database or storage, they are fetch from remote API.
-func (rh *NamesWorker) RetrieveNames() (result map[string]map[string]bool, err error) {
+func (rh *NameWorker) RetrieveNames() (result map[string]map[string]bool, err error) {
 	result, err = rh.GetNames()
 
 	if err != nil {
@@ -93,7 +93,7 @@ func (rh *NamesWorker) RetrieveNames() (result map[string]map[string]bool, err e
 
 // FetchAndAddNames attempts to query the remote API for the set of names for each namespace at
 // the current date. If successful, the results are persisted to underlying database and storage.
-func (rh *NamesWorker) FetchAndAddNames() (names map[string]map[string]bool, err error) {
+func (rh *NameWorker) FetchAndAddNames() (names map[string]map[string]bool, err error) {
 	names, err = rh.FetchNames()
 
 	if err != nil {
@@ -114,13 +114,13 @@ func (rh *NamesWorker) FetchAndAddNames() (names map[string]map[string]bool, err
 }
 
 // AddNames persists the set of names for each namespace into the database and storage.
-func (rh *NamesWorker) AddNames(names map[string]map[string]bool) (dbErr error, stgErr error) {
+func (rh *NameWorker) AddNames(names map[string]map[string]bool) (dbErr error, stgErr error) {
 	return rh.db.PutNames(names), rh.storage.WriteNames(names)
 }
 
 // fetchNames processes namespaces concurrently, returning the list
 // of names for each namespace and a concatenation of any errors that occur
-func (rh *NamesWorker) fetchNames(namespaces []string, count int) (<-chan NamespaceNames, error) {
+func (rh *NameWorker) fetchNames(namespaces []string, count int) (<-chan NamespaceNames, error) {
 	var err error
 	var errs []error
 
@@ -156,11 +156,10 @@ nsLoop:
 		err = fmt.Errorf("one or more errors occurred while fetching names: %+v", errs)
 	}
 
-
 	return namesCh, err
 }
 
-func (rh *NamesWorker) transformNames(namesCh <-chan NamespaceNames, err error) (map[string]map[string]bool, error) {
+func (rh *NameWorker) transformNames(namesCh <-chan NamespaceNames, err error) (map[string]map[string]bool, error) {
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +177,7 @@ func (rh *NamesWorker) transformNames(namesCh <-chan NamespaceNames, err error) 
 	return result, nil
 }
 
-func (rh *NamesWorker) FetchNames() (map[string]map[string]bool, error) {
+func (rh *NameWorker) FetchNames() (map[string]map[string]bool, error) {
 	namespaces, err := routes.GetAllNamespaces()
 
 	if err != nil {
@@ -190,7 +189,7 @@ func (rh *NamesWorker) FetchNames() (map[string]map[string]bool, error) {
 	return rh.transformNames(rh.fetchNames(namespaces, nsCount))
 }
 
-func (rh *NamesWorker) processPages(namespace string, pages <-chan Names, namesCh chan<- NamespaceNames) {
+func (rh *NameWorker) processPages(namespace string, pages <-chan Names, namesCh chan<- NamespaceNames) {
 	var nms []string
 
 	for {
@@ -203,12 +202,12 @@ func (rh *NamesWorker) processPages(namespace string, pages <-chan Names, namesC
 		nms = append(nms, page...)
 	}
 
-	namesCh <- NamespaceNames{Namespace:namespace, Names: nms}
+	namesCh <- NamespaceNames{Namespace: namespace, Names: nms}
 
 	close(namesCh)
 }
 
-func (rh *NamesWorker) fetchNamespaceNames(namespace string,
+func (rh *NameWorker) fetchNamespaceNames(namespace string,
 	pages chan<- Names) []error {
 
 	var errors []error
@@ -252,7 +251,7 @@ pageLoop:
 }
 
 // fetch asynchronously inserts results to database
-func (rh *NamesWorker) FetchNamespaceNames(namespace string, out chan<- NamespaceNames, errCh chan<- error, wg *sync.WaitGroup) {
+func (rh *NameWorker) FetchNamespaceNames(namespace string, out chan<- NamespaceNames, errCh chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	pages := make(chan Names, config.BatchSize)
@@ -273,7 +272,7 @@ func (rh *NamesWorker) FetchNamespaceNames(namespace string, out chan<- Namespac
 // TODO implement retry
 // TODO zap logger
 // TODO make sure cleanup even when early returns (need to defer)
-func (rh *NamesWorker) processPageRequest(namespace string, pageURL string, page uint64,
+func (rh *NameWorker) processPageRequest(namespace string, pageURL string, page uint64,
 	pages chan<- Names, done chan<- struct{}, errCh chan<- error, wg *sync.WaitGroup) {
 
 	defer wg.Done()
@@ -321,6 +320,6 @@ func (rh *NamesWorker) processPageRequest(namespace string, pageURL string, page
 	pages <- pageResults
 }
 
-func (rh *NamesWorker) Shutdown() error {
+func (rh *NameWorker) Shutdown() error {
 	return rh.db.Shutdown()
 }

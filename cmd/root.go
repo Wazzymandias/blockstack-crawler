@@ -1,11 +1,11 @@
-// package cmd implements CLI commands that perform Blockstack related operations
+// Package cmd implements CLI commands that perform Blockstack related operations
 package cmd
 
 import (
 	"fmt"
+	"github.com/Wazzymandias/blockstack-crawler/config"
 	"github.com/spf13/cobra"
 	"os"
-	"github.com/Wazzymandias/blockstack-crawler/config"
 )
 
 var rootCmd = &cobra.Command{

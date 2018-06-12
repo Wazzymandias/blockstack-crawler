@@ -1,3 +1,5 @@
+// Package db implements interfaces to different database types and provides specification of
+// BlockstackDB and DB operations, such that any new database can be used as long as it implements those methods.
 package db
 
 import (

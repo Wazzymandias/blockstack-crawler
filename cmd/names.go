@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 	"github.com/Wazzymandias/blockstack-crawler/config"
-	"github.com/spf13/cobra"
-	"time"
 	"github.com/Wazzymandias/blockstack-crawler/worker"
+	"github.com/spf13/cobra"
 	"log"
+	"time"
 )
 
 var namesCmd = &cobra.Command{
