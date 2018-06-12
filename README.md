@@ -8,7 +8,8 @@ Storage type is limited to local for now.
 >Note: The current set of commands is limited, but the repository was designed with extensibility in mind.
 Additional commands, as well as different database and storage types are a WIP.
 
-###Commands
+##Commands
+Below is a list of currently supported commands:
 
 #### Users
 `./blockstack-crawler names`
