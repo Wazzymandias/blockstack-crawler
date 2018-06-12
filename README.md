@@ -1,14 +1,14 @@
 # Blockstack Crawler
 
-Blockstack Crawler queries the Blockstack API and persists the data into database and storage.
+Blockstack Crawler queries the Blockstack API and persists relevant data into database and storage.
 
 It currently supports [Badger](https://github.com/dgraph-io/badger) or [Bolt](https://github.com/coreos/bbolt) as the underlying database.
 Storage type is limited to local for now.
 
->Note: The current set of commands is limited, but the repository was designed with extensibility in mind.
-Additional commands, as well as different database and storage types are a WIP.
+> Note: Current functionality is limited, but the repository was designed with extensibility in mind.
+> Additional commands, as well as different database and storage types are a WIP.
 
-##Commands
+## Commands
 Below is a list of currently supported commands:
 
 #### Users
@@ -32,7 +32,7 @@ New users since a given date can be displayed and follows the general steps outl
   If not, the remote Blockstack API is queried for the data.
   - The set of new users can be printed to standard output, or written to file in text or JSON format.
   
-Currently, fetching the latest users takes a short period of time (3 seconds to 1-2 minutes).
+  `Note: Fetching the latest users takes a short period of time (3 seconds to 1-2 minutes).`
 
 ##### Daily New Users
 It is recommended to use an external process manager such as `systemd`, `init.d` or `upstart` to run this program as a background daemon.
@@ -41,5 +41,6 @@ It is recommended to use an external process manager such as `systemd`, `init.d`
 
 An example Dockerfile is provided in `tools/docker` and can be used to launch a container that reports daily new users.
 
+`cd $GOPATH/src/github.com/Wazzymandias/blockstack-crawler`
 
 #### 
