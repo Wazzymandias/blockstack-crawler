@@ -1,11 +1,11 @@
-package app
+package names
 
 import (
 	"encoding/json"
 	"testing"
 )
 
-func TestGetAll(t *testing.T) {
+func TestMarshalNames(t *testing.T) {
 	data :=
 		`[
   "bardusco.id", 

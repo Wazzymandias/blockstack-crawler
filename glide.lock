@@ -1,12 +1,12 @@
-hash: 7cb12052427cb2ff9ab8abe4a7d9d018233e92aaf366184ecec88e612efc6f8a
-updated: 2018-06-10T03:03:13.509016831-04:00
+hash: cbfebf5edc431083b6b23fb5ae9c90ce6be39723413cfc8862048cf58f7c5609
+updated: 2018-06-11T22:56:52.105196-04:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/coreos/bbolt
   version: af9db2027c98c61ecd8e17caa5bd265792b9b9a2
 - name: github.com/dgraph-io/badger
-  version: cdf9ffb40fde980875360cf2b1f7d66946fdc769
+  version: 8b89769ed71e56cf7f80abdcfd3576efc97bd412
   subpackages:
   - options
   - protos
@@ -16,7 +16,7 @@ imports:
 - name: github.com/dgryski/go-farm
   version: 2de33835d10275975374b37b2dcfd22c9020a1f5
 - name: github.com/golang/protobuf
-  version: 05f48f4eaf0e05663b562bab533cdd472238ce29
+  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
 - name: github.com/inconshreveable/mousetrap
@@ -24,17 +24,17 @@ imports:
 - name: github.com/pkg/errors
   version: 816c9085562cd7ee03e7f8188a1cfd942858cded
 - name: github.com/spf13/cobra
-  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
+  version: a1f051bc3eba734da4772d60e2d677f47cf93ef4
 - name: github.com/spf13/pflag
-  version: 3ebe029320b2676d667ae88da602a5f854788a8a
+  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: golang.org/x/net
-  version: 1e491301e022f8f977054da4c2d852decd59571f
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
   subpackages:
   - context
   - internal/timeseries
   - trace
 - name: golang.org/x/sys
-  version: 9527bec2660bd847c050fda93a0f0c6dee0800bb
+  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
   subpackages:
   - unix
 testImports: []

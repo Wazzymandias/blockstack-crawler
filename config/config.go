@@ -1,3 +1,5 @@
+// Package config stores all configuration related variables and constants, and
+// stores any arguments passed by the user
 package config
 
 import (
@@ -7,34 +9,48 @@ import (
 )
 
 const (
-	ProgramName = "bpc"
+	// ProgramName is name of program, references in CLI when displaying commands
+	ProgramName = "blockstack-crawler"
 
-	DefaultApiURL       = "core.blockstack.org"
-	DefaultApiURLScheme = "https"
+	// DefaultAPIHost
+	DefaultAPIHost   = "core.blockstack.org"
+	DefaultAPIScheme = "https"
 
 	DefaultTimeout   = 120 * time.Second
 	DefaultBatchSize = 50
 
-	DefaultDBType      = Badger
+	DefaultAPIPort = 80
+
+	DefaultDBType      = "bolt"
 	DefaultDBDir       = "db"
-	DefaultStorageType = Local
+	DefaultStorageType = "local"
+
+	DefaultOutputFormat = "json"
 
 	NamesDir  = "names"
 	NamesJSON = "names.json"
+
+	BoltDBFile = "bolt.db"
 )
 
 var (
+	// DefaultDataDir
 	DefaultDataDir = os.ExpandEnv(fmt.Sprintf("$HOME/.%s/data", ProgramName))
 
-	ApiURL              = DefaultApiURL
-	Timeout             = DefaultTimeout
-	ApiURLScheme        = DefaultApiURLScheme
+	ApiHost      = DefaultAPIHost
+	Timeout      = DefaultTimeout
+	ApiURLScheme = DefaultAPIScheme
+	ApiPort      = DefaultAPIPort
+
 	BatchSize    uint64 = DefaultBatchSize
 
 	DataDir      = DefaultDataDir
-	DatabaseType = DefaultDBType
-	StorageType  = DefaultStorageType
+	DatabaseType string
+	StorageType  string
 	DBDir        = DefaultDBDir
 
 	NewUsersSince string
+	OutputFormat = DefaultOutputFormat
+
+	OutputFile string
 )

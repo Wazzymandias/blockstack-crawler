@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"github.com/Wazzymandias/blockstack-crawler/config"
 )
 
 type Local struct {

@@ -1,7 +1,14 @@
-package app
+package names
 
-// map[namespace] -> map[name] -> exists
-func selectNewNames(ol map[string]map[string]bool, nw map[string]map[string]bool) (result map[string]map[string]bool) {
+type Names []string
+
+type NamespaceNames struct {
+	Namespace string
+	Names
+}
+
+// SelectNew
+func SelectNew(ol map[string]map[string]bool, nw map[string]map[string]bool) (result map[string]map[string]bool) {
 	for ns, names := range nw {
 		if _, exists := ol[ns]; !exists {
 			result[ns] = names

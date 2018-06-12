@@ -1,13 +1,14 @@
+// package storage provides interfaces to different storage types to persist data
 package storage
 
 import (
 	"fmt"
 
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"github.com/Wazzymandias/blockstack-crawler/config"
 )
 
 func New() (BlockstackStorage, error) {
-	switch config.StorageType {
+	switch config.StorageFromString(config.StorageType) {
 	case config.Local:
 		return NewLocal(config.DataDir)
 	default:

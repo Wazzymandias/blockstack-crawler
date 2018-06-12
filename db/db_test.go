@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"github.com/Wazzymandias/blockstack-profile-crawler/config"
+	"github.com/Wazzymandias/blockstack-crawler/config"
 	"path/filepath"
 	"testing"
 	"time"
