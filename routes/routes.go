@@ -8,20 +8,25 @@ import (
 	"github.com/Wazzymandias/blockstack-crawler/config"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 const (
+	// GetAllNamespacesPath is path to get all namespaces
 	GetAllNamespacesPath = "/v1/namespaces"
 )
 
+// GetAllNamespaces queries the Blockstack API for a list of all namespaces
 // TODO switch statement that maps request type to url endpoint to hit
 func GetAllNamespaces() ([]string, error) {
 	var result []string
 
-	url := fmt.Sprintf("%s://%s%s", config.ApiURLScheme, config.ApiHost, GetAllNamespacesPath)
+	u := url.URL{Scheme: config.ApiURLScheme, Host:fmt.Sprintf("%s:%d",
+		config.ApiHost, config.ApiPort), Path: GetAllNamespacesPath}
+
 	client := &http.Client{Timeout: config.Timeout}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u.String(), nil)
 
 	if err != nil {
 		return nil, err

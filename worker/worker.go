@@ -1,4 +1,4 @@
-// worker implements various workers to process requests sent by the user
+// Package worker implements various workers to process requests sent by the user
 package worker
 
 import (

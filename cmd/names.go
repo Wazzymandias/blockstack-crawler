@@ -9,6 +9,7 @@ import (
 	"github.com/Wazzymandias/blockstack-crawler/worker"
 	"github.com/spf13/cobra"
 	"io/ioutil"
+	"log"
 	"strings"
 	"time"
 )
@@ -21,12 +22,14 @@ var namesCmd = &cobra.Command{
 		var n map[string]map[string]bool
 		var err error
 
+		log.Println("creating new name worker")
 		nw, err := worker.NewNameWorker()
 
 		if err != nil {
 			return fmt.Errorf("error creating new name worker: %+v", err)
 		}
 
+		log.Println("attempting to retrieve names")
 		if config.NewUsersSince != "" {
 			var t time.Time
 			layout := "2006-01-02"
@@ -60,11 +63,17 @@ func init() {
 	namesCmd.Flags().StringVarP(&config.NewUsersSince, "since", "s", "",
 		"ISO 8601 formatted date [YYYY-MM-DD]")
 
-	namesCmd.Flags().StringVarP(&config.OutputFormat, "format", "t",
+	namesCmd.Flags().StringVarP(&config.OutputFormat, "format", "f",
 		config.DefaultOutputFormat, "output names in prettified json or text format")
 
 	namesCmd.Flags().StringVarP(&config.OutputFile, "outfile", "o", "",
 		"write results to file rather than printing to standard output")
+
+	namesCmd.Flags().DurationVarP(&config.Timeout, "timeout", "t", config.DefaultTimeout,
+		"timeout for API requests")
+
+	namesCmd.Flags().Uint64VarP(&config.BatchSize, "batch", "b", config.DefaultBatchSize,
+		"number of concurrent requests to make to API")
 }
 
 func prettyPrintNames(n map[string][]string) error {

@@ -37,12 +37,12 @@ var (
 	// DefaultDataDir
 	DefaultDataDir = os.ExpandEnv(fmt.Sprintf("$HOME/.%s/data", ProgramName))
 
-	ApiHost      = DefaultAPIHost
-	Timeout      = DefaultTimeout
-	ApiURLScheme = DefaultAPIScheme
-	ApiPort      = DefaultAPIPort
+	ApiHost      string
+	Timeout      time.Duration
+	ApiURLScheme string
+	ApiPort      uint16
 
-	BatchSize uint64 = DefaultBatchSize
+	BatchSize uint64
 
 	DataDir      = DefaultDataDir
 	DatabaseType string

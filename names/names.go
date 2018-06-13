@@ -53,3 +53,19 @@ func MapToSlice(in map[string]map[string]bool) (out map[string][]string) {
 
 	return
 }
+
+// SliceToMap converts a map of names per namespace to a boolean map of names to namespace,
+// which is a facsimile of a set in Go
+func SliceToMap(in map[string][]string) (map[string]map[string]bool) {
+	out := make(map[string]map[string]bool)
+
+	for k, v := range in {
+		out[k] = make(map[string]bool)
+
+		for _, e := range v {
+			out[k][e] = true
+		}
+	}
+
+	return out
+}

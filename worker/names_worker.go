@@ -9,9 +9,11 @@ import (
 	"github.com/Wazzymandias/blockstack-crawler/routes"
 	"github.com/Wazzymandias/blockstack-crawler/storage"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"sync"
 	"time"
+	"net/url"
 )
 
 // NameWorker processes name related requests
@@ -31,21 +33,21 @@ func (nw *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]b
 	var old, current map[string]map[string]bool
 	var err error
 
+	current, err = nw.RetrieveNames()
+
+	if err != nil {
+		log.Println("error retrieving latest names:", err)
+		return nil, err
+	}
+
 	if old, err = nw.GetNamesAt(since); err != nil {
-		// TODO log error
+		log.Println("error finding names found at", since.String())
 		return nil, fmt.Errorf("error fetching names for time %s: %+v", since.String(), err)
 	}
 
 	if len(old) == 0 {
-		// TODO log error
+		log.Println("no names found at", since.String())
 		return nil, fmt.Errorf("user data not found for time %s: cannot compare", since.String())
-	}
-
-	current, err = nw.RetrieveNames()
-
-	if err != nil {
-		// TODO log err
-		return nil, err
 	}
 
 	return SelectNew(old, current), nil
@@ -57,19 +59,25 @@ func (nw *NameWorker) GetNames() (map[string]map[string]bool, error) {
 }
 
 // GetNamesAt attempts to find and return the set of names for each namespace at the given date
-func (nw *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
-	result, err = nw.db.GetNamesAt(date)
+func (nw *NameWorker) GetNamesAt(date time.Time) (map[string]map[string]bool, error) {
+	result, err := nw.db.GetNamesAt(date)
 
 	if err != nil && err != config.ErrDBKeyNotFound {
-		return
+		return nil, err
 	}
 
 	if len(result) > 0 {
-		return
+		return result, nil
 	}
 
 	if nw.storage.NamesExistAt(date) {
-		return nw.storage.ReadNamesAt(date)
+		nSlice, err := nw.storage.ReadNamesAt(date)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return SliceToMap(nSlice), nil
 	}
 
 	return nil, nil
@@ -114,8 +122,8 @@ func (nw *NameWorker) FetchAndAddNames() (names map[string]map[string]bool, err 
 }
 
 // AddNames persists the set of names for each namespace into the database and storage.
-func (nw *NameWorker) AddNames(names map[string]map[string]bool) (dbErr error, stgErr error) {
-	return nw.db.PutNames(names), nw.storage.WriteNames(names)
+func (nw *NameWorker) AddNames(n map[string]map[string]bool) (dbErr error, stgErr error) {
+	return nw.db.PutNames(n), nw.storage.WriteNames(MapToSlice(n))
 }
 
 // fetchNames processes namespaces concurrently, returning the list
@@ -212,7 +220,8 @@ func (nw *NameWorker) fetchNamespaceNames(namespace string,
 
 	var errors []error
 
-	u := fmt.Sprintf("%s://%s%s/%s/%s", config.ApiURLScheme, config.ApiHost, routes.GetAllNamespacesPath, namespace, "names")
+	u := url.URL{Scheme: config.ApiURLScheme, Host:fmt.Sprintf("%s:%d", config.ApiHost, config.ApiPort),
+	Path: fmt.Sprintf("%s/%s/%s", routes.GetAllNamespacesPath, namespace, "names")}
 
 	wg := new(sync.WaitGroup)
 	pagesDone := make(chan struct{}, config.BatchSize)
@@ -231,7 +240,7 @@ pageLoop:
 		default:
 			for count := uint64(0); count < config.BatchSize; count++ {
 				wg.Add(1)
-				go nw.processPageRequest(namespace, u, page+count, pages, pagesDone, errCh, wg)
+				go nw.processPageRequest(namespace, u.String(), page+count, pages, pagesDone, errCh, wg)
 			}
 			wg.Wait()
 		}
