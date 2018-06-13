@@ -1,3 +1,5 @@
+// Package routes contains Blockstack API related paths and functions to make HTTP requests
+// using specified API configuration settings.
 package routes
 
 import (

@@ -27,11 +27,11 @@ type NameWorker struct {
 // RetrieveNewNames attempts to compare the latest set of names for each namespace to the set
 // found at the provided time. If no previous data exists at the specified time,
 // an error is returned. Otherwise a set of new names is returned.
-func (rh *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
+func (nw *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]bool, error) {
 	var old, current map[string]map[string]bool
 	var err error
 
-	if old, err = rh.GetNamesAt(since); err != nil {
+	if old, err = nw.GetNamesAt(since); err != nil {
 		// TODO log error
 		return nil, fmt.Errorf("error fetching names for time %s: %+v", since.String(), err)
 	}
@@ -41,7 +41,7 @@ func (rh *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]b
 		return nil, fmt.Errorf("user data not found for time %s: cannot compare", since.String())
 	}
 
-	current, err = rh.RetrieveNames()
+	current, err = nw.RetrieveNames()
 
 	if err != nil {
 		// TODO log err
@@ -52,13 +52,13 @@ func (rh *NameWorker) RetrieveNewNames(since time.Time) (map[string]map[string]b
 }
 
 // GetNames returns the set of all names at current day
-func (rh *NameWorker) GetNames() (map[string]map[string]bool, error) {
-	return rh.GetNamesAt(time.Now())
+func (nw *NameWorker) GetNames() (map[string]map[string]bool, error) {
+	return nw.GetNamesAt(time.Now())
 }
 
 // GetNamesAt attempts to find and return the set of names for each namespace at the given date
-func (rh *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
-	result, err = rh.db.GetNamesAt(date)
+func (nw *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]bool, err error) {
+	result, err = nw.db.GetNamesAt(date)
 
 	if err != nil && err != config.ErrDBKeyNotFound {
 		return
@@ -68,8 +68,8 @@ func (rh *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]b
 		return
 	}
 
-	if rh.storage.NamesExistAt(date) {
-		return rh.storage.ReadNamesAt(date)
+	if nw.storage.NamesExistAt(date) {
+		return nw.storage.ReadNamesAt(date)
 	}
 
 	return nil, nil
@@ -77,8 +77,8 @@ func (rh *NameWorker) GetNamesAt(date time.Time) (result map[string]map[string]b
 
 // RetrieveNames attempts to return the set of names at current date.
 // If the names don't exist in database or storage, they are fetch from remote API.
-func (rh *NameWorker) RetrieveNames() (result map[string]map[string]bool, err error) {
-	result, err = rh.GetNames()
+func (nw *NameWorker) RetrieveNames() (result map[string]map[string]bool, err error) {
+	result, err = nw.GetNames()
 
 	if err != nil {
 		return
@@ -88,19 +88,19 @@ func (rh *NameWorker) RetrieveNames() (result map[string]map[string]bool, err er
 		return
 	}
 
-	return rh.FetchAndAddNames()
+	return nw.FetchAndAddNames()
 }
 
 // FetchAndAddNames attempts to query the remote API for the set of names for each namespace at
 // the current date. If successful, the results are persisted to underlying database and storage.
-func (rh *NameWorker) FetchAndAddNames() (names map[string]map[string]bool, err error) {
-	names, err = rh.FetchNames()
+func (nw *NameWorker) FetchAndAddNames() (names map[string]map[string]bool, err error) {
+	names, err = nw.FetchNames()
 
 	if err != nil {
 		return
 	}
 
-	dbErr, stgErr := rh.AddNames(names)
+	dbErr, stgErr := nw.AddNames(names)
 
 	if dbErr != nil {
 		return nil, fmt.Errorf("error inserting names into database: %+v", dbErr)
@@ -114,13 +114,13 @@ func (rh *NameWorker) FetchAndAddNames() (names map[string]map[string]bool, err 
 }
 
 // AddNames persists the set of names for each namespace into the database and storage.
-func (rh *NameWorker) AddNames(names map[string]map[string]bool) (dbErr error, stgErr error) {
-	return rh.db.PutNames(names), rh.storage.WriteNames(names)
+func (nw *NameWorker) AddNames(names map[string]map[string]bool) (dbErr error, stgErr error) {
+	return nw.db.PutNames(names), nw.storage.WriteNames(names)
 }
 
 // fetchNames processes namespaces concurrently, returning the list
 // of names for each namespace and a concatenation of any errors that occur
-func (rh *NameWorker) fetchNames(namespaces []string, count int) (<-chan NamespaceNames, error) {
+func (nw *NameWorker) fetchNames(namespaces []string, count int) (<-chan NamespaceNames, error) {
 	var err error
 	var errs []error
 
@@ -136,7 +136,7 @@ nsLoop:
 			break nsLoop
 		default:
 			wg.Add(1)
-			go rh.FetchNamespaceNames(ns, namesCh, errCh, wg)
+			go nw.FetchNamespaceNames(ns, namesCh, errCh, wg)
 		}
 	}
 
@@ -159,7 +159,7 @@ nsLoop:
 	return namesCh, err
 }
 
-func (rh *NameWorker) transformNames(namesCh <-chan NamespaceNames, err error) (map[string]map[string]bool, error) {
+func (nw *NameWorker) transformNames(namesCh <-chan NamespaceNames, err error) (map[string]map[string]bool, error) {
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (rh *NameWorker) transformNames(namesCh <-chan NamespaceNames, err error) (
 	return result, nil
 }
 
-func (rh *NameWorker) FetchNames() (map[string]map[string]bool, error) {
+func (nw *NameWorker) FetchNames() (map[string]map[string]bool, error) {
 	namespaces, err := routes.GetAllNamespaces()
 
 	if err != nil {
@@ -186,10 +186,10 @@ func (rh *NameWorker) FetchNames() (map[string]map[string]bool, error) {
 
 	nsCount := len(namespaces)
 
-	return rh.transformNames(rh.fetchNames(namespaces, nsCount))
+	return nw.transformNames(nw.fetchNames(namespaces, nsCount))
 }
 
-func (rh *NameWorker) processPages(namespace string, pages <-chan Names, namesCh chan<- NamespaceNames) {
+func (nw *NameWorker) processPages(namespace string, pages <-chan Names, namesCh chan<- NamespaceNames) {
 	var nms []string
 
 	for {
@@ -207,7 +207,7 @@ func (rh *NameWorker) processPages(namespace string, pages <-chan Names, namesCh
 	close(namesCh)
 }
 
-func (rh *NameWorker) fetchNamespaceNames(namespace string,
+func (nw *NameWorker) fetchNamespaceNames(namespace string,
 	pages chan<- Names) []error {
 
 	var errors []error
@@ -231,7 +231,7 @@ pageLoop:
 		default:
 			for count := uint64(0); count < config.BatchSize; count++ {
 				wg.Add(1)
-				go rh.processPageRequest(namespace, u, page+count, pages, pagesDone, errCh, wg)
+				go nw.processPageRequest(namespace, u, page+count, pages, pagesDone, errCh, wg)
 			}
 			wg.Wait()
 		}
@@ -251,15 +251,15 @@ pageLoop:
 }
 
 // fetch asynchronously inserts results to database
-func (rh *NameWorker) FetchNamespaceNames(namespace string, out chan<- NamespaceNames, errCh chan<- error, wg *sync.WaitGroup) {
+func (nw *NameWorker) FetchNamespaceNames(namespace string, out chan<- NamespaceNames, errCh chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	pages := make(chan Names, config.BatchSize)
 	namesCh := make(chan NamespaceNames, 1)
 
-	go rh.processPages(namespace, pages, namesCh)
+	go nw.processPages(namespace, pages, namesCh)
 
-	errors := rh.fetchNamespaceNames(namespace, pages)
+	errors := nw.fetchNamespaceNames(namespace, pages)
 
 	if len(errors) > 0 {
 		errCh <- fmt.Errorf("error(s) occurred fetching names for namespace %s: %+v", namespace, errors)
@@ -272,7 +272,7 @@ func (rh *NameWorker) FetchNamespaceNames(namespace string, out chan<- Namespace
 // TODO implement retry
 // TODO zap logger
 // TODO make sure cleanup even when early returns (need to defer)
-func (rh *NameWorker) processPageRequest(namespace string, pageURL string, page uint64,
+func (nw *NameWorker) processPageRequest(namespace string, pageURL string, page uint64,
 	pages chan<- Names, done chan<- struct{}, errCh chan<- error, wg *sync.WaitGroup) {
 
 	defer wg.Done()
@@ -286,7 +286,7 @@ func (rh *NameWorker) processPageRequest(namespace string, pageURL string, page 
 
 	req.URL.RawQuery = fmt.Sprintf("page=%d", page)
 
-	resp, err := rh.client.Do(req)
+	resp, err := nw.client.Do(req)
 
 	if err != nil {
 		errCh <- err
@@ -320,6 +320,6 @@ func (rh *NameWorker) processPageRequest(namespace string, pageURL string, page 
 	pages <- pageResults
 }
 
-func (rh *NameWorker) Shutdown() error {
-	return rh.db.Shutdown()
+func (nw *NameWorker) Shutdown() error {
+	return nw.db.Shutdown()
 }

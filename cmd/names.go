@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/Wazzymandias/blockstack-crawler/config"
+	"github.com/Wazzymandias/blockstack-crawler/names"
 	"github.com/Wazzymandias/blockstack-crawler/worker"
 	"github.com/spf13/cobra"
-	"log"
+	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -13,14 +17,14 @@ var namesCmd = &cobra.Command{
 	Use:   "names [OPTIONS]",
 	Short: "display information related to users for Blockstack apps",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var names map[string]map[string]bool
+		// n is set of names map[namespace][SetOfNames]
+		var n map[string]map[string]bool
 		var err error
 
-		log.Println("[names] creating new name worker")
 		nw, err := worker.NewNameWorker()
 
 		if err != nil {
-			return err
+			return fmt.Errorf("error creating new name worker: %+v", err)
 		}
 
 		if config.NewUsersSince != "" {
@@ -30,22 +34,23 @@ var namesCmd = &cobra.Command{
 			t, err = time.Parse(layout, config.NewUsersSince)
 
 			if err != nil {
-				return err
+				return fmt.Errorf("error parsing time (YYYY-MM-DD required): %+v", err)
 			}
 
-			log.Println("[names] attempting to retrieve new names since ", t.String())
-			names, err = nw.RetrieveNewNames(t)
+			n, err = nw.RetrieveNewNames(t)
 		} else {
-			log.Println("[names] fetching latest")
-			names, err = nw.RetrieveNames()
+			n, err = nw.RetrieveNames()
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("error retrieving names: %+v", err)
 		}
 
-		fmt.Println(names)
-		prettyPrintNames(names)
+		err = prettyPrintNames(names.MapToSlice(n))
+
+		if err != nil {
+			return fmt.Errorf("error printing names: %+v", err)
+		}
 
 		return nw.Shutdown()
 	},
@@ -62,27 +67,51 @@ func init() {
 		"write results to file rather than printing to standard output")
 }
 
-func prettyPrintNames(n map[string]map[string]bool) error {
+func prettyPrintNames(n map[string][]string) error {
 	switch config.OutputFormat {
 	case "json", "JSON":
-		prettyPrintJSON(n)
+		return prettyPrintJSON(n)
 	case "txt", "text":
-		prettyPrintTxt(n)
+		return prettyPrintTxt(n)
 	default:
 		return fmt.Errorf("unsupported format specified: %s", config.OutputFormat)
 	}
+}
 
+func prettyPrintJSON(n map[string][]string) error {
+	nb, err := json.MarshalIndent(&n, "", "    ")
+
+	if err != nil {
+		return fmt.Errorf("error marhsalling json: %+v", err)
+	}
+
+	if config.OutputFile != "" {
+		out := config.OutputFile
+
+		if !strings.HasSuffix(out, ".json") {
+			out = out + ".json"
+		}
+
+		return ioutil.WriteFile(out, nb, 0644)
+	}
+
+	fmt.Println(string(nb))
 	return nil
 }
 
-func prettyPrintJSON(n map[string]map[string]bool) {
-	if config.OutputFile != "" {
-		// write to file
-	}
-}
+func prettyPrintTxt(n map[string][]string) error {
+	var buf bytes.Buffer
 
-func prettyPrintTxt(n map[string]map[string]bool) {
-	if config.OutputFile != "" {
-		// write to file
+	for k, v := range n {
+		buf.WriteString(fmt.Sprintf("%s:\n", k))
+		for _, name := range v {
+			buf.WriteString(fmt.Sprintf("\t%s\n", name))
+		}
 	}
+	if config.OutputFile != "" {
+		return ioutil.WriteFile(config.OutputFile, buf.Bytes(), 0644)
+	}
+
+	fmt.Println(buf.String())
+	return nil
 }

@@ -18,7 +18,7 @@ import (
 // if any occur.
 func NewBadgerDB(path string) (BlockstackDB, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 			return nil, fmt.Errorf("unable to create new badger DB, cannot create path %s: %+v", path, err)
 		}
 	}
@@ -32,7 +32,7 @@ func NewBadgerDB(path string) (BlockstackDB, error) {
 // if any occur.
 func NewBoltDB(path string) (BlockstackDB, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 			return nil, fmt.Errorf("unable to create new bolt DB, cannot create path %s: %+v", path, err)
 		}
 	}

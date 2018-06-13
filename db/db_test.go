@@ -9,7 +9,8 @@ import (
 )
 
 func TestNewBoltDB(t *testing.T) {
-	//config.DataDir = "/tmp"
+	config.DataDir = "/tmp"
+
 	b, err := NewBoltDB(filepath.Join(config.DataDir, config.DBDir, "bolt.db"))
 
 	if err != nil {
@@ -32,9 +33,15 @@ func TestNewBoltDB(t *testing.T) {
 
 	ti, err := time.Parse(layout, "2018-06-08")
 
-	fmt.Println("time:", ti)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	v2, err := b.GetNamesAt(ti)
+
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(v2) > 0 {
 		fmt.Println("found v2:", len(v2))

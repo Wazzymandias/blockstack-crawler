@@ -2,6 +2,7 @@ package storage
 
 import "time"
 
+// Storage defines basic operations
 type Storage interface {
 	Exists(path string) bool
 	Find(path string) ([]byte, error)
