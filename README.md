@@ -98,7 +98,7 @@ cd $GOPATH/src/github.com/Wazzymandias/blockstack-crawler/tools/docker
 git clone https://github.com/Wazzymandias/blockstack-crawler $GOPATH/src/github.com/Wazzymandias/blockstack-crawler
 
 # enter directory 
-cd $GOPATH/src/github.com/Wazzymandias/blockstack-crawler/tools/docker
+cd $GOPATH/src/github.com/Wazzymandias/blockstack-crawler/
 
 # install glide if it doesn't exist
 go get -u github.com/Masterminds/glide 
