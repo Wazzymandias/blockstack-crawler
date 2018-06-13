@@ -74,7 +74,7 @@ It is recommended to use an external process manager such as `systemd`, `init.d`
 
 An example Dockerfile and scripts are provided in `tools/docker` and can be used to launch a container that reports daily new users.
 
-To build the image:
+To use the image:
 ```
 # clone the repo to $GOPATH
 git clone https://github.com/Wazzymandias/blockstack-crawler $GOPATH/src/github.com/Wazzymandias/blockstack-crawler
