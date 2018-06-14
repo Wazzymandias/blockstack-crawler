@@ -6,6 +6,7 @@ import (
 	"github.com/Wazzymandias/blockstack-crawler/db"
 	"github.com/Wazzymandias/blockstack-crawler/storage"
 	"net/http"
+	"crypto/tls"
 )
 
 // NewNameWorker initializes a worker with new storage and
@@ -25,7 +26,9 @@ func NewNameWorker() (*NameWorker, error) {
 		return &NameWorker{}, err
 	}
 
-	cl := http.Client{Timeout: config.Timeout}
+	tr := &http.Transport{TLSClientConfig:&tls.Config{}}
+
+	cl := http.Client{Timeout: config.Timeout, Transport:tr}
 
 	return &NameWorker{storage: store, db: d, client: cl}, nil
 }

@@ -19,7 +19,7 @@ const (
 	DefaultTimeout   = 120 * time.Second
 	DefaultBatchSize = 50
 
-	DefaultAPIPort = 80
+	DefaultAPIPort = 443
 
 	DefaultDBType      = "bolt"
 	DefaultDBDir       = "db"

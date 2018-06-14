@@ -15,7 +15,7 @@ Below is a list of currently supported commands:
 ```
 Flags:
       --api-host string     host api to query (default "core.blockstack.org")
-  -p, --api-port uint16     Port to access API (default 80)
+  -p, --api-port uint16     Port to access API (default 443)
       --api-scheme string   URL scheme for API (default "https")
       --datadir string      data directory that stores embedded database and storage information (default "$HOME/.blockstack-crawler/data")
       --db string           type of database to store results in (default "bolt")
@@ -37,7 +37,7 @@ Flags:
 
 Global Flags:
       --api-host string     host api to query (default "core.blockstack.org")
-  -p, --api-port uint16     Port to access API (default 80)
+  -p, --api-port uint16     Port to access API (default 443)
       --api-scheme string   URL scheme for API (default "https")
       --datadir string      data directory that stores embedded database and storage information (default "$HOME/.blockstack-crawler/data")
       --db string           type of database to store results in (default "bolt")
@@ -66,6 +66,48 @@ New users since a given date can be displayed and follows the general steps outl
   - The set of new users can be printed to standard output, or written to file in text or JSON format.
   
   >Note: Fetching the latest users may take anywhere from 3 seconds to 1-2 minutes depending on API response times, network load, etc.
+
+##### Example
+`./blockstack-crawler names --since 2018-06-13`
+```
+2018/06/18 14:17:07 creating new name worker
+2018/06/18 14:17:07 attempting to retrieve names
+{
+    "blockstack": [
+        ""
+    ],
+    "graphite": [
+        ""
+    ],
+    "helloworld": [
+        ""
+    ],
+    "id": [
+        "",
+        "sportscenter.id",
+        "drones.id",
+        "brave.id",
+        "boringcompany.id",
+        "whatsapp.id",
+        "dietze.id",
+        "virgin.id",
+        "russia.id",
+        "danielfritsche.id",
+        "norbert.id",
+        "decred.id",
+        "tassilo.id",
+        "praveen_inaganti.id",
+        "stripe.id",
+        "uniqlo.id",
+        "contact.id",
+        "linemuller.id",
+        "krisguy.id"
+    ],
+    "podcast": [
+        ""
+    ]
+}
+```
 
 ##### Daily New Users
 It is recommended to use an external process manager such as `systemd`, `init.d` or `upstart` to run this program as a background daemon.
